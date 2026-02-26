@@ -1,64 +1,59 @@
-Now Playing Dashboard for Nest Hub
 
-A Home Assistant dashboard card designed to display currently playing media in a clean and modern style on Google Nest Hub devices. Supports casting the dashboard automatically when media starts playing.
+# Now Playing Dashboard for Nest Hub
 
-Features
+A **Home Assistant dashboard card** designed to display currently playing media in a clean and modern style on Google Nest Hub devices. Supports casting the dashboard automatically when media starts playing.
 
-Now Playing Card: Displays album art, track title, artist, and playback progress.
+## Features
 
-Clean, Minimal Design: Modern UI optimized for smart displays.
+* **Now Playing Card**: Displays album art, track title, artist, and playback progress.
+* **Clean, Minimal Design**: Modern UI optimized for smart displays.
+* **Automatic Casting**: Casts the dashboard to your Nest Hub when media starts playing.
+* **Responsive Layout**: Works well on Google Nest Hub and other Cast-enabled devices.
+* **Customizable**: Adjust colors, fonts, and layout to match your Home Assistant theme.
 
-Automatic Casting: Casts the dashboard to your Nest Hub when media starts playing.
+## Requirements
 
-Responsive Layout: Works well on Google Nest Hub and other Cast-enabled devices.
+* [Home Assistant](https://www.home-assistant.io/) (Core 2025.x or later recommended)
+* Google Nest Hub or other Cast-enabled smart display
+* Media players integrated in Home Assistant (Sonos, Spotify, etc.)
+* **Required Lovelace cards / plugins** (install via HACS or manually):
 
-Customizable: Adjust colors, fonts, and layout to match your Home Assistant theme.
+  * [`card-mod`](https://github.com/thomasloven/lovelace-card-mod) – for styling and theming the card
+  * [`layout-card`](https://github.com/thomasloven/lovelace-layout-card) – for arranging the card layout (if used)
+  * Any other helper cards used in your configuration (e.g., progress bar, button cards)
 
-Requirements
+> ⚠️ Make sure these dependencies are installed before adding the Now Playing dashboard card.
 
-Home Assistant
- (Core 2025.x or later recommended)
+## Manual Installation
 
-Google Nest Hub or other Cast-enabled smart display
+1. Clone or download this repository to your Home Assistant `/config/www/` directory:
 
-Media players integrated in Home Assistant (Sonos, Spotify, etc.)
+   ```bash
+   git clone https://github.com/yourusername/now-playing-dashboard.git
+   ```
+2. Add the card to your Lovelace resources:
 
-Required Lovelace cards / plugins (install via HACS or manually):
+   ```yaml
+   resources:
+     - url: /local/now-playing-dashboard/now-playing-card.js
+       type: module
+   ```
+3. Add the Lovelace view:
 
-card-mod
- – for styling and theming the card
+   ```yaml
+   title: Now Playing
+   path: now-playing
+   panel: true
+   cards:
+     - type: custom:now-playing-card
+       entity: media_player.living_room
+   ```
 
-layout-card
- – for arranging the card layout (if used)
-
-Any other helper cards used in your configuration (e.g., progress bar, button cards)
-
-⚠️ Make sure these dependencies are installed before adding the Now Playing dashboard card.
-
-Manual Installation
-
-Clone or download this repository to your Home Assistant /config/www/ directory:
-
-git clone https://github.com/yourusername/now-playing-dashboard.git
-
-Add the card to your Lovelace resources:
-
-resources:
-  - url: /local/now-playing-dashboard/now-playing-card.js
-    type: module
-
-Add the Lovelace view:
-
-title: Now Playing
-path: now-playing
-panel: true
-cards:
-  - type: custom:now-playing-card
-    entity: media_player.living_room
-Optional Automation
+## Optional Automation
 
 Cast the dashboard automatically when media starts playing:
 
+```yaml
 alias: Cast Now Playing
 trigger:
   - platform: state
@@ -70,21 +65,23 @@ action:
       entity_id: media_player.nest_hub
       dashboard_path: lovelace
       view_path: now-playing
-Customization
+```
 
-Colors & Fonts: Adjust CSS variables in now-playing-card.js to match your theme.
+## Customization
 
-Progress Bar Style: Modify the card’s progress bar design in the card’s CSS.
+* **Colors & Fonts**: Adjust CSS variables in `now-playing-card.js` to match your theme.
+* **Progress Bar Style**: Modify the card’s progress bar design in the card’s CSS.
+* **Album Art Size**: Change the dimensions in the card configuration.
 
-Album Art Size: Change the dimensions in the card configuration.
+## Screenshots
 
-Screenshots
+![Example](./images/example.png)
 
-Contributing
+## Contributing
 
 Contributions, improvements, and feature requests are welcome! Please submit a pull request or open an issue.
 
-License
+## License
 
-This project is licensed under the MIT License – see the LICENSE
- file for details.
+This project is licensed under the MIT License – see the [LICENSE](./LICENSE) file for details.
+
