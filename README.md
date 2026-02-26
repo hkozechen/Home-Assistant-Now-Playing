@@ -28,9 +28,6 @@ A **Home Assistant dashboard card** designed to display currently playing media 
 
 1. Clone or download this repository to your Home Assistant `/config/www/` directory:
 
-   ```bash
-   git clone https://github.com/yourusername/now-playing-dashboard.git
-   ```
 2. Add the card to your Lovelace resources:
 
    ```yaml
