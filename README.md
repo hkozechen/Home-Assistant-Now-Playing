@@ -73,10 +73,6 @@ action:
 * **Progress Bar Style**: Modify the card’s progress bar design in the card’s CSS.
 * **Album Art Size**: Change the dimensions in the card configuration.
 
-## Screenshots
-
-![Example](./images/example.png)
-
 ## Contributing
 
 Contributions, improvements, and feature requests are welcome! Please submit a pull request or open an issue.
