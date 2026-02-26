@@ -1,0 +1,249 @@
+# ============================================
+# Sonos Now Playing - Home Assistant Dashboard
+# ============================================
+# Required HACS integrations:
+#   - custom:button-card
+#   - card-mod (lovelace-card-mod)
+#
+# ⚠️  CONFIGURE THESE TWO VALUES:
+#   1. Replace "ENTER YOUR ENTITY HERE" with your entity
+#   2. Replace "ENTER YOUR HA IP INSTANCE HERE" with your HA URL
+
+title: Now Playing
+views:
+  - title: Now Playing
+    type: panel
+    path: now-playing
+    cards:
+      - type: custom:button-card
+        entity: ENTER YOUR ENTITY HERE
+        show_name: false
+        show_icon: false
+        show_state: false
+        update_timer: 1000
+        triggers_update: all
+        tap_action:
+          action: call-service
+          service: media_player.media_play_pause
+          service_data:
+            entity_id: ENTER YOUR ENTITY HERE
+        hold_action:
+          action: call-service
+          service: media_player.media_next_track
+          service_data:
+            entity_id: ENTER YOUR ENTITY HERE
+        double_tap_action:
+          action: call-service
+          service: media_player.media_previous_track
+          service_data:
+            entity_id: ENTER YOUR ENTITY HERE
+        styles:
+          card:
+            - background: none
+            - box-shadow: none
+            - border: none
+            - height: 100vh
+            - width: 100vw
+            - padding: 0
+            - margin: 0
+            - overflow: hidden
+            - position: relative
+        custom_fields:
+          blurred_bg: |
+            [[[
+              const HA_URL = 'ENTER YOUR HA IP INSTANCE HERE';
+              const img = entity.attributes.entity_picture || '';
+              if (!img)
+                return '<div style="position:fixed;inset:0;background:#0a0a0a;"></div>';
+
+              const url = HA_URL + img;
+
+              return `
+                <div style="
+                  position:fixed;
+                  inset:-40px;
+                  background-image:url('${url}');
+                  background-size:cover;
+                  background-position:center;
+                  filter:blur(60px) saturate(1.6) brightness(0.45);
+                  transform:scale(1.3);
+                "></div>
+                <div style="
+                  position:fixed;
+                  inset:0;
+                  background:rgba(0,0,0,0.35);
+                "></div>
+              `;
+            ]]]
+          track_info: |
+            [[[
+              const title = entity.attributes.media_title || 'Not Playing';
+              const artist = entity.attributes.media_artist || '';
+
+              return `
+                <div style="
+                  position:fixed;
+                  top:24px;
+                  left:0;
+                  right:0;
+                  text-align:center;
+                  padding:0 32px;
+                ">
+                  <div style="
+                    font-size:clamp(32px,6vw,60px);
+                    font-weight:700;
+                    color:white;
+                    letter-spacing:-0.02em;
+                    text-shadow:0 2px 12px rgba(0,0,0,0.5);
+                    white-space:nowrap;
+                    overflow:hidden;
+                    text-overflow:ellipsis;
+                  ">${title}</div>
+
+                  <div style="
+                    font-size:clamp(20px,4vw,45px);
+                    font-weight:400;
+                    color:rgba(255,255,255,0.7);
+                    margin-top:6px;
+                    text-shadow:0 1px 8px rgba(0,0,0,0.4);
+                    white-space:nowrap;
+                    overflow:hidden;
+                    text-overflow:ellipsis;
+                  ">${artist}</div>
+                </div>
+              `;
+            ]]]
+          artwork: |
+            [[[
+              const HA_URL = 'ENTER YOUR HA IP INSTANCE HERE';
+              const img = entity.attributes.entity_picture || '';
+              if (!img) return '';
+
+              const url = HA_URL + img;
+
+              return `
+                <div style="
+                  position:fixed;
+                  top:54%;
+                  left:50%;
+                  transform:translate(-50%,-50%);
+                ">
+                  <img src="${url}" style="
+                    width:300px;
+                    height:300px;
+                    border-radius:20px;
+                    object-fit:cover;
+                    box-shadow:0 20px 60px rgba(0,0,0,0.5),
+                               0 0 0 1px rgba(255,255,255,0.08);
+                    animation:fadeScale 0.6s ease;
+                  "/>
+                </div>
+
+                <style>
+                  @keyframes fadeScale {
+                    from { opacity:0; transform:scale(0.96); }
+                    to { opacity:1; transform:scale(1); }
+                  }
+                </style>
+              `;
+            ]]]
+          source_badge: |
+            [[[
+              const source = (entity.attributes.source || '').toLowerCase();
+              const contentId = (entity.attributes.media_content_id || '').toLowerCase();
+
+              let label = '';
+
+              if (source.includes('airplay')) {
+                label = 'AirPlay';
+              } 
+              // Detect native Sonos Apple Music streams specifically (IF YOU ONLY USE APPLE MUSIC AS PROVIDER, CHANGE IT ACCORDINGLY)
+              else if (contentId.startsWith('x-sonos')) {
+                label = 'Lossless';
+              }
+
+              if (!label) return '';
+
+              return `
+                <div style="
+                  position:fixed;
+                  top:calc(54% + 180px);
+                  left:50%;
+                  transform:translateX(-50%);
+                  padding:6px 18px;
+                  font-size:14px;
+                  font-weight:500;
+                  letter-spacing:0.08em;
+                  text-transform:uppercase;
+                  color:rgba(255,255,255,0.85);
+                  background:rgba(255,255,255,0.08);
+                  backdrop-filter:blur(10px);
+                  border-radius:20px;
+                  border:1px solid rgba(255,255,255,0.15);
+                ">
+                  ${label}
+                </div>
+              `;
+            ]]]
+          progress_bar: |
+            [[[
+              const pos = Number(entity.attributes.media_position || 0);
+              const dur = Math.max(Number(entity.attributes.media_duration || 1), 1);
+              const updatedAt = entity.attributes.media_position_updated_at;
+              const playing = entity.state === 'playing';
+
+              let current = pos;
+
+              if (playing && updatedAt) {
+                const updatedMs = new Date(updatedAt).getTime();
+                if (!Number.isNaN(updatedMs)) {
+                  const elapsed = (Date.now() - updatedMs) / 1000;
+                  current = Math.min(pos + elapsed, dur);
+                }
+              }
+
+              current = Math.max(0, Math.min(current, dur));
+              const pct = (current / dur) * 100;
+
+              const fmt = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return m + ':' + (sec < 10 ? '0' : '') + sec;
+              };
+
+              return `
+                <div style="
+                  position:fixed;
+                  bottom:24px;
+                  left:0;
+                  right:0;
+                  padding:0 40px;
+                ">
+                  <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    margin-bottom:6px;
+                    font-size:12px;
+                    color:rgba(255,255,255,0.5);
+                  ">
+                    <span>${fmt(current)}</span>
+                    <span>-${fmt(Math.max(dur-current,0))}</span>
+                  </div>
+
+                  <div style="
+                    height:5px;
+                    background:rgba(255,255,255,0.15);
+                    border-radius:3px;
+                    overflow:hidden;
+                  ">
+                    <div style="
+                      height:100%;
+                      width:${pct}%;
+                      background:rgba(255,255,255,0.85);
+                      border-radius:3px;
+                      transition:width 0.5s linear;
+                    "></div>
+                  </div>
+                </div>
+              `;
+            ]]]
